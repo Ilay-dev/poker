@@ -50,10 +50,10 @@ function SingleChipStackSvg({
   compact: boolean;
 }) {
   const palette = CHIP_PALETTE[column.tone];
-  const rx = compact ? 10.5 : 12;
-  const ry = compact ? 3 : 3.4;
-  const thickness = compact ? 2.8 : 3.2;
-  const stepY = compact ? 3 : 3.4;
+  const rx = compact ? 13.5 : 17;
+  const ry = compact ? 3.8 : 5;
+  const thickness = compact ? 3.5 : 4.6;
+  const stepY = compact ? 3.8 : 5;
 
   const width = rx * 2 + 4;
   const cx = width / 2;
@@ -65,7 +65,7 @@ function SingleChipStackSvg({
 
   // Front edge spot offsets symmetrically across left, center, and right of the curved rim
   const spotOffsets = [-rx * 0.54, 0, rx * 0.54];
-  const spotW = compact ? 2.2 : 2.6;
+  const spotW = compact ? 2.8 : 3.5;
 
   return (
     <svg
@@ -149,28 +149,28 @@ export function ChipStackVisualizer({
       aria-label={`Deine Chips: ${formatMoney(chips)}`}
     >
       {columns.length === 0 ? (
-        <div className="flex flex-col items-end gap-1">
+        <div className="flex flex-col items-end gap-1.5">
           <div
             className={`${
-              compact ? 'w-6 h-3' : 'w-7 h-3.5'
+              compact ? 'w-7 h-3.5' : 'w-9 h-4'
             } rounded-full border border-dashed border-white/15`}
             aria-hidden="true"
           />
-          <span className="font-mono-code text-[10px] text-zinc-600">
+          <span className="font-mono-code text-[11px] text-zinc-500">
             {isAllIn ? 'All-In' : '$0'}
           </span>
         </div>
       ) : (
         <>
-          <div className={`flex items-end ${compact ? 'gap-1' : 'gap-1.5'}`}>
+          <div className={`flex items-end ${compact ? 'gap-1.5' : 'gap-2'}`}>
             {columns.map((col) => (
               <div
                 key={col.denomination}
                 title={`${col.count} × ${formatMoney(col.denomination)}`}
-                className="flex flex-col items-center gap-0.5"
+                className="flex flex-col items-center gap-1"
               >
                 <SingleChipStackSvg column={col} compact={compact} />
-                <span className="font-mono-code text-[9px] text-zinc-600 leading-none">
+                <span className="font-mono-code text-[10px] text-zinc-500 leading-none">
                   {col.label}
                 </span>
               </div>
@@ -178,10 +178,10 @@ export function ChipStackVisualizer({
           </div>
 
           <div className="flex items-center gap-1.5">
-            <span className="text-[9px] uppercase tracking-[0.18em] text-zinc-600">
+            <span className="text-[10px] uppercase tracking-[0.18em] text-zinc-600">
               Stack
             </span>
-            <span className="font-mono-code text-[11px] font-semibold text-zinc-300">
+            <span className="font-mono-code text-xs font-semibold text-zinc-200">
               {formatMoney(chips)}
             </span>
           </div>

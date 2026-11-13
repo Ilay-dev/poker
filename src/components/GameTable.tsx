@@ -856,7 +856,7 @@ export function GameTable({
       {me && (
         <aside
           aria-label="Chip-Stapel Visualisierung"
-          className="hidden lg:block lg:absolute lg:right-6 lg:bottom-7 z-10 pointer-events-auto"
+          className="hidden lg:block lg:absolute lg:right-6 lg:top-1/2 lg:-translate-y-1/2 xl:top-auto xl:translate-y-0 xl:right-8 xl:bottom-8 z-10 pointer-events-auto"
         >
           <ChipStackVisualizer
             chips={me.chips}
