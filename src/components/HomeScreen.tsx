@@ -108,24 +108,16 @@ export function HomeScreen({
   return (
     <div className="min-h-screen bg-black text-white flex flex-col justify-between px-4 py-8 sm:px-6">
       {/* Top status bar */}
-      <header className="max-w-xl w-full mx-auto flex items-center justify-between text-xs text-zinc-400">
-        <div className="flex items-center gap-2">
-          <span
-            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border ${
-              connected
-                ? 'border-white/15 text-zinc-300 bg-white/[0.03]'
-                : 'border-white/10 text-zinc-500 bg-white/[0.02]'
-            }`}
-          >
-            {connected ? <Wifi className="w-3 h-3 text-white" /> : <WifiOff className="w-3 h-3" />}
-            <span>{connected ? 'P2P Host-Modus bereit' : 'Verbinde…'}</span>
-          </span>
+      <header className="max-w-xl w-full mx-auto flex items-center justify-between text-xs text-zinc-500">
+        <div className="inline-flex items-center gap-1.5">
+          {connected ? <Wifi className="w-3.5 h-3.5 text-zinc-400" /> : <WifiOff className="w-3.5 h-3.5 text-zinc-600" />}
+          <span>{connected ? 'P2P Host-Modus bereit' : 'Verbinde…'}</span>
         </div>
 
         <button
           type="button"
           onClick={() => setShowRules((v) => !v)}
-          className="text-zinc-400 hover:text-white transition-colors cursor-pointer underline-offset-4 hover:underline"
+          className="text-zinc-500 hover:text-white transition-colors cursor-pointer"
         >
           {showRules ? 'Regeln ausblenden' : 'Standardregeln'}
         </button>
@@ -197,13 +189,13 @@ export function HomeScreen({
           {!hasInviteCode ? (
             <>
               {/* Starting Stack Picker */}
-              <div className="rounded-2xl border border-white/12 bg-[#09090B] p-4 space-y-3">
+              <div className="rounded-2xl border border-white/[0.08] bg-[#08080A] p-4 space-y-3">
                 <div className="flex items-center justify-between gap-2">
                   <label
                     htmlFor="starting-stack"
                     className="inline-flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-zinc-400"
                   >
-                    <Coins className="w-3.5 h-3.5 text-white" />
+                    <Coins className="w-3.5 h-3.5 text-zinc-300" />
                     <span>Startgeld pro Spieler</span>
                   </label>
                   <span className="font-mono-code text-[11px] text-zinc-500">
@@ -221,9 +213,9 @@ export function HomeScreen({
                     value={startingStackRaw}
                     onChange={(e) => setStartingStackRaw(e.target.value)}
                     onBlur={() => setStartingStackRaw(String(effectiveStack))}
-                    className="w-full rounded-xl border border-white/15 bg-black px-3.5 py-2.5 text-sm font-mono-code font-semibold text-white focus:outline-none focus:border-white transition-colors"
+                    className="w-full rounded-xl border border-white/10 bg-black px-3.5 py-2.5 text-sm font-mono-code font-semibold text-white focus:outline-none focus:border-white/60 transition-colors"
                   />
-                  <span className="font-mono-code text-sm text-zinc-400 shrink-0 pr-1">$</span>
+                  <span className="font-mono-code text-sm text-zinc-500 shrink-0 pr-1">$</span>
                 </div>
 
                 <div className="flex flex-wrap gap-1.5">
@@ -237,7 +229,7 @@ export function HomeScreen({
                         className={`rounded-lg px-2.5 py-1 text-[11px] font-mono-code transition-all cursor-pointer ${
                           active
                             ? 'bg-white text-black font-semibold'
-                            : 'border border-white/12 bg-black text-zinc-400 hover:text-white hover:border-white/30'
+                            : 'bg-white/[0.04] text-zinc-400 hover:text-white hover:bg-white/[0.09]'
                         }`}
                       >
                         {formatMoney(preset)}

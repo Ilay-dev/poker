@@ -81,15 +81,8 @@ export function PokerCard({
   const centerSuitSize = {
     xs: 'w-4 h-4',
     sm: 'w-5 h-5',
-    md: 'w-6 h-6 sm:w-7 sm:h-7',
-    lg: 'w-7 h-7 sm:w-8 sm:h-8',
-  }[size];
-
-  const centerRankSize = {
-    xs: 'text-xs',
-    sm: 'text-sm',
-    md: 'text-2xl sm:text-[28px]',
-    lg: 'text-3xl sm:text-[34px]',
+    md: 'w-7 h-7 sm:w-8 sm:h-8',
+    lg: 'w-8 h-8 sm:w-9 sm:h-9',
   }[size];
 
   const borderColor = highlighted
@@ -112,14 +105,6 @@ export function PokerCard({
         dimmed ? 'opacity-40' : 'opacity-100'
       }`}
     >
-      {/* Subtle architectural inner frame */}
-      {size !== 'xs' && size !== 'sm' && (
-        <span
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-[5px] rounded-[inherit] border border-white/[0.06]"
-        />
-      )}
-
       {/* Top-left corner */}
       <div className="relative z-10 flex items-center justify-between w-full leading-none">
         <div className="flex flex-col items-center leading-none">
@@ -133,16 +118,8 @@ export function PokerCard({
         </div>
       </div>
 
-      {/* Center rank + suit emblem */}
-      <div className="relative z-10 flex flex-col items-center justify-center flex-1 gap-0.5">
-        {(size === 'md' || size === 'lg') && (
-          <span
-            className={`font-mono-code font-bold tracking-tight leading-none ${centerRankSize}`}
-            style={{ color: meta.text }}
-          >
-            {rankLabel}
-          </span>
-        )}
+      {/* Center suit emblem */}
+      <div className="relative z-10 flex items-center justify-center flex-1">
         <SuitVector suit={card.suit} color={meta.hex} className={centerSuitSize} />
       </div>
 

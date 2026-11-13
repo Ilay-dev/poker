@@ -94,7 +94,7 @@ export function LobbyScreen({
         <button
           type="button"
           onClick={onLeave}
-          className="inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-white border border-white/12 rounded-lg px-3 py-1.5 hover:border-white/30 transition-colors cursor-pointer"
+          className="inline-flex items-center gap-1.5 text-xs text-zinc-500 hover:text-white rounded-lg px-2.5 py-1.5 hover:bg-white/[0.05] transition-colors cursor-pointer"
         >
           <LogOut className="w-3.5 h-3.5" />
           <span>Verlassen</span>
@@ -102,9 +102,9 @@ export function LobbyScreen({
       </header>
 
       {/* Main Lobby Card */}
-      <main className="max-w-2xl w-full mx-auto my-auto py-8 space-y-6">
+      <main className="max-w-2xl w-full mx-auto my-auto py-8 space-y-5">
         {/* Room Code & Share Panel */}
-        <section className="rounded-2xl border border-white/12 bg-[#09090B] p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <section className="rounded-2xl border border-white/[0.08] bg-[#08080A] p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="text-[11px] uppercase tracking-widest text-zinc-500 mb-1">
               Room-Code
@@ -136,11 +136,11 @@ export function LobbyScreen({
         </section>
 
         {/* Starting Money & Blinds Panel */}
-        <section className="rounded-2xl border border-white/12 bg-[#09090B] p-4 sm:p-5 space-y-4">
+        <section className="rounded-2xl border border-white/[0.08] bg-[#08080A] p-4 sm:p-5 space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="space-y-1">
               <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-zinc-400">
-                <Coins className="w-3.5 h-3.5 text-white" />
+                <Coins className="w-3.5 h-3.5 text-zinc-300" />
                 <span>Startgeld &amp; Blinds</span>
               </div>
               <p className="text-xs text-zinc-500 leading-relaxed">
@@ -148,7 +148,7 @@ export function LobbyScreen({
                 <span className="font-mono-code font-semibold text-white">
                   {formatMoney(room.config.startingStack)}
                 </span>{' '}
-                • Small / Big Blind:{' '}
+                · Small / Big Blind:{' '}
                 <span className="font-mono-code font-semibold text-zinc-300">
                   {room.config.smallBlind} / {room.config.bigBlind} $
                 </span>
@@ -169,12 +169,12 @@ export function LobbyScreen({
                     if (e.key === 'Enter') applyCustomStack();
                   }}
                   aria-label="Startgeld"
-                  className="w-28 rounded-xl border border-white/15 bg-black px-3 py-1.5 text-xs font-mono-code font-semibold text-white focus:outline-none focus:border-white"
+                  className="w-28 rounded-xl border border-white/10 bg-black px-3 py-1.5 text-xs font-mono-code font-semibold text-white focus:outline-none focus:border-white/60"
                 />
                 <button
                   type="button"
                   onClick={applyCustomStack}
-                  className="rounded-xl border border-white/15 bg-white/[0.05] px-2.5 py-1.5 text-xs font-medium text-white hover:bg-white hover:text-black transition-colors cursor-pointer"
+                  className="rounded-xl bg-white/[0.06] px-2.5 py-1.5 text-xs font-medium text-white hover:bg-white hover:text-black transition-colors cursor-pointer"
                 >
                   Übernehmen
                 </button>
@@ -183,7 +183,7 @@ export function LobbyScreen({
           </div>
 
           {isHost && (
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-white/[0.06]">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-white/[0.05]">
               <div className="flex flex-wrap gap-1.5">
                 {STARTING_STACK_PRESETS.map((preset) => {
                   const active = room.config.startingStack === preset;
@@ -195,7 +195,7 @@ export function LobbyScreen({
                       className={`rounded-lg px-2.5 py-1 text-xs font-mono-code transition-all cursor-pointer ${
                         active
                           ? 'bg-white text-black font-semibold'
-                          : 'border border-white/12 bg-black text-zinc-400 hover:text-white'
+                          : 'bg-white/[0.04] text-zinc-400 hover:text-white hover:bg-white/[0.09]'
                       }`}
                     >
                       {formatMoney(preset)}
@@ -205,7 +205,7 @@ export function LobbyScreen({
               </div>
 
               {blindPresets.length > 1 && (
-                <div className="inline-flex items-center gap-1 rounded-xl border border-white/12 bg-black p-1 self-start sm:self-center">
+                <div className="inline-flex items-center gap-1 rounded-xl bg-black/80 p-1 self-start sm:self-center">
                   <span className="text-[10px] uppercase tracking-wider text-zinc-500 px-2">
                     Blinds
                   </span>
@@ -233,8 +233,8 @@ export function LobbyScreen({
         </section>
 
         {/* Players List */}
-        <section className="rounded-2xl border border-white/12 bg-[#09090B] overflow-hidden">
-          <div className="px-5 py-4 border-b border-white/10 flex items-center justify-between">
+        <section className="rounded-2xl border border-white/[0.08] bg-[#08080A] overflow-hidden">
+          <div className="px-5 py-4 border-b border-white/[0.06] flex items-center justify-between">
             <div className="flex items-center gap-2 text-sm font-medium text-white">
               <Users className="w-4 h-4 text-zinc-400" />
               <span>Spieler ({totalCount}/10)</span>
@@ -244,7 +244,7 @@ export function LobbyScreen({
               <button
                 type="button"
                 onClick={onAddBot}
-                className="inline-flex items-center gap-1.5 text-xs text-zinc-300 hover:text-white border border-white/15 rounded-lg px-2.5 py-1 hover:border-white/35 transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-white bg-white/[0.05] rounded-lg px-2.5 py-1 hover:bg-white/[0.1] transition-colors cursor-pointer"
               >
                 <Bot className="w-3.5 h-3.5" />
                 <span>+ Bot</span>

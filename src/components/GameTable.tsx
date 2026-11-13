@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { type CSSProperties, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Bot,
   Check,
@@ -20,6 +20,7 @@ import {
   getHandPhaseLabelDe,
   HAND_RANKINGS_GUIDE,
 } from '../utils/pokerLabels.ts';
+import { ChipStackVisualizer } from './ChipStackVisualizer.tsx';
 import { MatchOverModal } from './MatchOverModal.tsx';
 import { PokerCard } from './PokerCard.tsx';
 import { PokerCardBack } from './PokerCardBack.tsx';
@@ -202,36 +203,47 @@ export function GameTable({
   ).length;
 
   const myCallIsAllIn = Boolean(me && room.canCall && room.toCall >= me.chips);
+  const sliderPct =
+    room.maxRaiseTo > room.minRaiseTo
+      ? Math.max(
+          0,
+          Math.min(
+            100,
+            ((clampedBet - room.minRaiseTo) / (room.maxRaiseTo - room.minRaiseTo)) * 100
+          )
+        )
+      : 100;
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col justify-between overflow-x-hidden relative">
       {/* Top Bar */}
-      <header className="border-b border-white/[0.08] px-4 py-3 sm:px-6 z-20">
-        <div className="max-w-6xl mx-auto flex items-center justify-between gap-3">
+      <header className="border-b border-white/[0.06] px-4 py-2.5 sm:px-6 z-20">
+        <div className="max-w-5xl mx-auto flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-            <span className="font-bold tracking-[-0.03em] text-base">POKER</span>
-            <span className="text-zinc-700">|</span>
-            <span className="font-mono-code text-xs text-zinc-400">
+            <span className="font-bold tracking-[-0.03em] text-sm sm:text-base">POKER</span>
+            <span className="text-zinc-700">/</span>
+            <span className="font-mono-code text-xs text-zinc-500">
               {room.roomCode}
             </span>
-            <span className="hidden sm:inline text-xs text-zinc-600">•</span>
-            <span className="hidden sm:inline text-xs text-zinc-400">
+            <span className="hidden sm:inline text-zinc-800">·</span>
+            <span className="hidden sm:inline text-xs text-zinc-500">
               Hand #{room.handNumber}
             </span>
-            <span className="inline-flex items-center rounded-full border border-white/10 px-2.5 py-0.5 text-[10px] font-mono-code text-zinc-400">
-              Blinds {room.config.smallBlind}/{room.config.bigBlind}
+            <span className="text-zinc-800">·</span>
+            <span className="text-[11px] font-mono-code text-zinc-500">
+              {room.config.smallBlind}/{room.config.bigBlind}
             </span>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <span
-              className="inline-flex items-center gap-1.5 text-[11px] text-zinc-400 px-2 py-1 rounded-md border border-white/10"
+              className="inline-flex items-center gap-1.5 text-[11px] text-zinc-500 px-2 py-1"
               title={connected ? 'Verbunden' : 'Verbindung unterbrochen'}
             >
               {connected ? (
-                <Wifi className="w-3 h-3 text-white" />
+                <Wifi className="w-3.5 h-3.5 text-zinc-400" />
               ) : (
-                <WifiOff className="w-3 h-3 text-zinc-500" />
+                <WifiOff className="w-3.5 h-3.5 text-zinc-600" />
               )}
               <span className="hidden sm:inline">{connected ? 'Live' : 'Offline'}</span>
             </span>
@@ -240,7 +252,7 @@ export function GameTable({
               type="button"
               onClick={onToggleSound}
               title={soundEnabled ? 'Ton aus' : 'Ton an'}
-              className="p-1.5 rounded-lg border border-white/10 text-zinc-400 hover:text-white hover:border-white/25 transition-colors cursor-pointer"
+              className="p-1.5 rounded-lg text-zinc-500 hover:text-white hover:bg-white/[0.05] transition-colors cursor-pointer"
             >
               {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
             </button>
@@ -249,7 +261,7 @@ export function GameTable({
               type="button"
               onClick={() => setShowRules((v) => !v)}
               title="Handwertungen & Regeln"
-              className="p-1.5 rounded-lg border border-white/10 text-zinc-400 hover:text-white hover:border-white/25 transition-colors cursor-pointer"
+              className="p-1.5 rounded-lg text-zinc-500 hover:text-white hover:bg-white/[0.05] transition-colors cursor-pointer"
             >
               <HelpCircle className="w-4 h-4" />
             </button>
@@ -257,7 +269,7 @@ export function GameTable({
             <button
               type="button"
               onClick={onLeave}
-              className="inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-white border border-white/10 rounded-lg px-2.5 py-1.5 hover:border-white/25 transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 text-xs text-zinc-500 hover:text-white rounded-lg px-2 py-1.5 hover:bg-white/[0.05] transition-colors cursor-pointer"
             >
               <LogOut className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Verlassen</span>
@@ -268,30 +280,27 @@ export function GameTable({
 
       {/* Hand Rankings Drawer */}
       {showRules && (
-        <div className="border-b border-white/10 bg-[#08080A] px-4 py-3.5 text-xs text-zinc-300 z-20">
+        <div className="border-b border-white/[0.06] bg-[#070709] px-4 py-3 text-xs text-zinc-300 z-20">
           <div className="max-w-5xl mx-auto space-y-2.5">
             <div className="flex items-center justify-between">
-              <span className="font-semibold text-white">
-                Texas Hold&apos;em Handwertungen (höchste zuerst)
+              <span className="font-medium text-white">
+                Texas Hold&apos;em Handwertungen
               </span>
               <button
                 type="button"
                 onClick={() => setShowRules(false)}
-                className="text-white underline underline-offset-4 cursor-pointer"
+                className="text-zinc-400 hover:text-white transition-colors cursor-pointer"
               >
                 Schließen
               </button>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-x-4 gap-y-2">
               {HAND_RANKINGS_GUIDE.map((item) => (
-                <div
-                  key={item.rank}
-                  className="rounded-xl border border-white/[0.08] bg-black/50 px-2.5 py-2"
-                >
-                  <div className="font-medium text-white">
+                <div key={item.rank} className="py-1">
+                  <div className="font-medium text-zinc-200">
                     {item.rank}. {item.name}
                   </div>
-                  <div className="text-[11px] text-zinc-500 mt-0.5">{item.example}</div>
+                  <div className="text-[11px] text-zinc-500">{item.example}</div>
                 </div>
               ))}
             </div>
@@ -300,8 +309,8 @@ export function GameTable({
       )}
 
       {/* Opponents Strip */}
-      <section className="px-4 pt-4 sm:px-6 z-10">
-        <div className="max-w-5xl mx-auto flex flex-wrap items-stretch justify-center gap-2.5 sm:gap-3">
+      <section className="px-4 pt-3 sm:px-6 z-10">
+        <div className="max-w-5xl mx-auto flex flex-wrap items-stretch justify-center gap-2 sm:gap-2.5">
           {opponents.map((opp) => {
             const isTurn =
               room.phase === 'playing' &&
@@ -319,27 +328,27 @@ export function GameTable({
             return (
               <div
                 key={opp.id}
-                className={`relative rounded-xl border px-3.5 py-2.5 min-w-[148px] sm:min-w-[168px] transition-all flex flex-col justify-between gap-2 ${
+                className={`relative rounded-xl border px-3 py-2 min-w-[138px] sm:min-w-[156px] transition-all flex flex-col justify-between gap-1.5 ${
                   isWinner
-                    ? 'border-white bg-white/[0.09] shadow-[0_0_24px_rgba(255,255,255,0.14)]'
+                    ? 'border-white/70 bg-white/[0.08]'
                     : isTurn
-                      ? 'border-white bg-white/[0.07] shadow-[0_0_24px_rgba(255,255,255,0.08)]'
-                      : 'border-white/10 bg-[#09090B]'
-                } ${dimmed && !isWinner ? 'opacity-45' : 'opacity-100'}`}
+                      ? 'border-white/60 bg-white/[0.05]'
+                      : 'border-white/[0.07] bg-white/[0.015]'
+                } ${dimmed && !isWinner ? 'opacity-40' : 'opacity-100'}`}
               >
                 {/* Header: Name + Position Badges */}
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-1.5 min-w-0">
                     {opp.isBot ? (
-                      <Bot className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
+                      <Bot className="w-3 h-3 text-zinc-500 shrink-0" />
                     ) : (
                       <span
                         className={`w-1.5 h-1.5 rounded-full shrink-0 ${
                           !opp.connected
-                            ? 'bg-zinc-600'
+                            ? 'bg-zinc-700'
                             : isTurn
                               ? 'bg-white animate-pulse'
-                              : 'bg-zinc-500'
+                              : 'bg-zinc-600'
                         }`}
                       />
                     )}
@@ -352,18 +361,18 @@ export function GameTable({
                     {isDealer && (
                       <span
                         title="Dealer Button"
-                        className="w-4 h-4 rounded-full bg-white text-black font-mono-code text-[10px] font-bold flex items-center justify-center"
+                        className="w-3.5 h-3.5 rounded-full bg-white text-black font-mono-code text-[9px] font-bold flex items-center justify-center"
                       >
                         D
                       </span>
                     )}
                     {isSB && (
-                      <span className="rounded px-1 py-0.5 text-[9px] font-mono-code border border-white/20 text-zinc-300 leading-none">
+                      <span className="text-[9px] font-mono-code text-zinc-500">
                         SB
                       </span>
                     )}
                     {isBB && (
-                      <span className="rounded px-1 py-0.5 text-[9px] font-mono-code border border-white/20 text-zinc-300 leading-none">
+                      <span className="text-[9px] font-mono-code text-zinc-500">
                         BB
                       </span>
                     )}
@@ -371,23 +380,23 @@ export function GameTable({
                 </div>
 
                 {/* Stack & Current Bet */}
-                <div className="flex items-center justify-between gap-2 text-xs">
+                <div className="flex items-baseline justify-between gap-2 text-xs">
                   <span className="font-mono-code font-semibold text-white">
                     {formatMoney(opp.chips)}
                   </span>
                   {opp.streetBet > 0 ? (
-                    <span className="font-mono-code text-[11px] text-zinc-300 bg-white/[0.08] px-1.5 py-0.5 rounded">
+                    <span className="font-mono-code text-[11px] text-zinc-300">
                       +{opp.streetBet}
                     </span>
                   ) : opp.lastActionLabel ? (
-                    <span className="text-[10px] text-zinc-400 border border-white/10 px-1.5 py-0.5 rounded">
+                    <span className="text-[10px] text-zinc-500">
                       {opp.lastActionLabel}
                     </span>
                   ) : null}
                 </div>
 
                 {/* Cards / Status */}
-                <div className="flex items-center justify-between gap-2 min-h-[42px]">
+                <div className="flex items-center justify-between gap-2 min-h-[38px]">
                   {revealedCards && revealedCards.length === 2 ? (
                     <div className="flex items-center gap-1.5">
                       <div className="flex gap-1">
@@ -402,7 +411,7 @@ export function GameTable({
                         ))}
                       </div>
                       {revealedEval && (
-                        <span className="text-[10px] text-zinc-300 font-medium leading-tight max-w-[72px]">
+                        <span className="text-[10px] text-zinc-400 leading-tight max-w-[70px]">
                           {revealedEval.shortLabelDe}
                         </span>
                       )}
@@ -413,17 +422,17 @@ export function GameTable({
                       <PokerCardBack size="xs" />
                     </div>
                   ) : opp.eliminated ? (
-                    <span className="text-[10px] uppercase tracking-wider text-zinc-500">
+                    <span className="text-[10px] text-zinc-600">
                       Ausgeschieden
                     </span>
                   ) : opp.folded ? (
-                    <span className="text-[10px] uppercase tracking-wider text-zinc-500">
+                    <span className="text-[10px] text-zinc-600">
                       Gepasst
                     </span>
                   ) : null}
 
                   {!opp.connected && !opp.isBot && (
-                    <span className="text-[10px] text-zinc-500">Getrennt</span>
+                    <span className="text-[10px] text-zinc-600">Getrennt</span>
                   )}
                 </div>
 
@@ -431,10 +440,10 @@ export function GameTable({
                   <button
                     type="button"
                     onClick={() => onSkipDisconnected(opp.id)}
-                    className="w-full inline-flex items-center justify-center gap-1 rounded-lg border border-white/20 py-1 text-[10px] text-zinc-300 hover:bg-white hover:text-black transition-colors cursor-pointer"
+                    className="w-full inline-flex items-center justify-center gap-1 rounded-lg bg-white/[0.06] py-1 text-[10px] text-zinc-300 hover:bg-white hover:text-black transition-colors cursor-pointer"
                   >
                     <SkipForward className="w-3 h-3" />
-                    <span>Zug überspringen</span>
+                    <span>Überspringen</span>
                   </button>
                 )}
               </div>
@@ -444,25 +453,23 @@ export function GameTable({
       </section>
 
       {/* Center Stage: Pot + 5 Community Cards + Showdown / Status */}
-      <main className="flex-1 flex flex-col items-center justify-center px-4 py-5 relative gap-4">
+      <main className="flex-1 flex flex-col items-center justify-center px-4 py-4 relative gap-4">
         {/* Pot Display */}
-        <div className="flex flex-col items-center gap-1.5">
-          <div className="inline-flex items-baseline gap-2.5 rounded-full border border-white/15 bg-[#09090B] px-5 py-2 shadow-[0_10px_30px_rgba(0,0,0,0.85)]">
-            <span className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500">
+        <div className="flex flex-col items-center gap-1">
+          <div className="flex items-baseline gap-2.5">
+            <span className="text-[10px] uppercase tracking-[0.2em] text-zinc-600">
               Pot
             </span>
-            <span className="font-mono-code text-xl sm:text-2xl font-bold text-white">
+            <span className="font-mono-code text-2xl sm:text-3xl font-bold tracking-tight text-white">
               {formatMoney(room.potTotal)}
             </span>
           </div>
 
           {room.pots.length > 1 && (
-            <div className="flex flex-wrap items-center justify-center gap-1.5">
-              {room.pots.map((pot) => (
-                <span
-                  key={pot.label}
-                  className="rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-0.5 text-[10px] font-mono-code text-zinc-400"
-                >
+            <div className="flex flex-wrap items-center justify-center gap-2 text-[10px] font-mono-code text-zinc-500">
+              {room.pots.map((pot, idx) => (
+                <span key={pot.label}>
+                  {idx > 0 ? '· ' : ''}
                   {pot.label}: {formatMoney(pot.amount)}
                 </span>
               ))}
@@ -479,12 +486,8 @@ export function GameTable({
                 <div
                   key={`slot-${idx}`}
                   aria-hidden="true"
-                  className="w-[76px] h-[110px] sm:w-[92px] sm:h-[134px] rounded-2xl border border-dashed border-white/[0.09] bg-white/[0.015] flex items-center justify-center"
-                >
-                  <span className="text-[10px] font-mono-code text-zinc-700">
-                    {idx < 3 ? 'FLOP' : idx === 3 ? 'TURN' : 'RIVER'}
-                  </span>
-                </div>
+                  className="w-[76px] h-[110px] sm:w-[92px] sm:h-[134px] rounded-2xl border border-white/[0.05] bg-white/[0.01]"
+                />
               );
             }
             const isWinCard = isShowdownHighlightActive && winningCardSet.has(card.id);
@@ -501,29 +504,29 @@ export function GameTable({
           })}
         </div>
 
-        {/* Street & Event Status Pill */}
-        <div className="flex flex-col items-center gap-2 max-w-md text-center z-10">
-          <div className="inline-flex items-center gap-2.5 rounded-full border border-white/12 bg-[#09090B] px-4 py-1.5 text-xs">
-            <span className="font-medium text-white">
+        {/* Quiet Street & Event Status */}
+        <div className="flex flex-col items-center gap-1 max-w-md text-center z-10">
+          <div className="inline-flex items-center gap-2 text-xs text-zinc-400">
+            <span className="font-medium text-zinc-200">
               {getHandPhaseLabelDe(room.handPhase)}
             </span>
             {room.currentBet > 0 && room.handPhase !== 'hand_over' && (
               <>
-                <span className="text-zinc-700">•</span>
+                <span className="text-zinc-700">·</span>
                 <span className="font-mono-code text-zinc-400">
-                  Einsatz: <span className="text-white">{formatMoney(room.currentBet)}</span>
+                  Einsatz {formatMoney(room.currentBet)}
                 </span>
               </>
             )}
           </div>
 
           {actionNotice ? (
-            <p className="text-xs font-medium text-white bg-white/[0.1] border border-white/25 rounded-full px-3.5 py-1 animate-card-pop">
+            <p className="text-xs font-medium text-white animate-card-pop">
               {actionNotice}
             </p>
           ) : (
             room.lastEvent && (
-              <p className="text-xs text-zinc-400 px-3 leading-relaxed">
+              <p className="text-xs text-zinc-500 px-3 leading-relaxed">
                 {room.lastEvent.message}
               </p>
             )
@@ -532,7 +535,7 @@ export function GameTable({
 
         {/* Showdown / Hand Over Inline Banner */}
         {room.phase === 'playing' && room.handPhase === 'hand_over' && room.handSummary && (
-          <div className="w-full max-w-xl rounded-2xl border border-white/20 bg-[#09090B] px-4 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xl animate-card-pop">
+          <div className="w-full max-w-xl rounded-xl border border-white/15 bg-[#08080A] px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-card-pop">
             <div className="space-y-0.5">
               <div className="text-sm font-semibold text-white">
                 {room.handSummary.winnerIds
@@ -550,7 +553,7 @@ export function GameTable({
                           ? `${p.potLabel}: ${p.winningHandLabel ?? ''}`
                           : p.winningHandLabel ?? ''
                       )
-                      .join(' • ')}
+                      .join(' · ')}
               </div>
             </div>
 
@@ -559,9 +562,9 @@ export function GameTable({
                 <button
                   type="button"
                   onClick={onReadyNextHand}
-                  className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold transition-all cursor-pointer ${
+                  className={`inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-xs font-semibold transition-all cursor-pointer ${
                     me.readyForNextHand
-                      ? 'border border-white/30 bg-white/[0.08] text-white'
+                      ? 'border border-white/25 bg-white/[0.08] text-white'
                       : 'bg-white text-black hover:bg-zinc-200'
                   }`}
                 >
@@ -569,7 +572,7 @@ export function GameTable({
                   <span>
                     Nächste Hand
                     {totalActiveHumans > 1 ? ` (${readyHumanCount}/${totalActiveHumans})` : ''}
-                    {room.countdownSeconds !== null ? ` • ${room.countdownSeconds}s` : ''}
+                    {room.countdownSeconds !== null ? ` · ${room.countdownSeconds}s` : ''}
                   </span>
                 </button>
               )}
@@ -578,7 +581,7 @@ export function GameTable({
                 <button
                   type="button"
                   onClick={onReturnToLobby}
-                  className="rounded-xl border border-white/15 px-3 py-2 text-xs text-zinc-400 hover:text-white hover:border-white/30 transition-colors cursor-pointer"
+                  className="rounded-lg px-3 py-2 text-xs text-zinc-400 hover:text-white hover:bg-white/[0.06] transition-colors cursor-pointer"
                 >
                   Lobby
                 </button>
@@ -589,20 +592,18 @@ export function GameTable({
       </main>
 
       {/* Bottom Area: Turn Indicator + My Hole Cards + Betting Controls */}
-      <footer className="px-3 pb-5 pt-2 sm:px-6 z-10">
-        <div className="max-w-3xl mx-auto space-y-3.5">
-          {/* Turn Status Pill */}
+      <footer className="px-3 pb-5 pt-1 sm:px-6 z-10">
+        <div className="max-w-2xl mx-auto space-y-3">
+          {/* Minimal Turn Status Line */}
           <div className="flex justify-center">
             <div
-              className={`inline-flex items-center justify-center gap-2.5 rounded-full px-6 py-2 text-sm sm:text-base font-semibold tracking-tight transition-all ${
-                isMyTurn
-                  ? 'bg-white text-black shadow-[0_0_24px_rgba(255,255,255,0.2)]'
-                  : 'border border-white/15 bg-[#09090B] text-zinc-200'
+              className={`inline-flex items-center justify-center gap-2 text-xs sm:text-sm transition-colors ${
+                isMyTurn ? 'font-medium text-white' : 'text-zinc-500'
               }`}
             >
               <span
-                className={`w-2 h-2 rounded-full ${
-                  isMyTurn ? 'bg-black animate-pulse' : 'bg-zinc-400'
+                className={`w-1.5 h-1.5 rounded-full ${
+                  isMyTurn ? 'bg-white animate-pulse' : 'bg-zinc-700'
                 }`}
               />
               <span>
@@ -612,7 +613,7 @@ export function GameTable({
                     ? 'All-In — Karten werden aufgedeckt…'
                     : isMyTurn
                       ? room.toCall > 0
-                        ? `Du bist am Zug • ${formatMoney(room.toCall)} zum Mitgehen`
+                        ? `Du bist am Zug · ${formatMoney(room.toCall)} zum Mitgehen`
                         : 'Du bist am Zug'
                       : `${currentPlayer?.name ?? '…'} ist am Zug`}
               </span>
@@ -623,7 +624,7 @@ export function GameTable({
           {me && (
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               {/* My 2 Hole Cards */}
-              <div className="flex items-center justify-center -space-x-2 py-1">
+              <div className="flex items-center justify-center -space-x-2 py-0.5">
                 {room.myHoleCards.length === 2 ? (
                   room.myHoleCards.map((card, i) => {
                     const isWinCard = isShowdownHighlightActive && winningCardSet.has(card.id);
@@ -654,95 +655,91 @@ export function GameTable({
                 )}
               </div>
 
-              {/* My Info Card */}
-              <div
-                className={`rounded-2xl border px-4 py-3 min-w-[220px] space-y-2 ${
-                  room.handPhase === 'hand_over' && winnerSet.has(me.id)
-                    ? 'border-white bg-white/[0.08]'
-                    : 'border-white/12 bg-[#09090B]'
-                }`}
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-xs font-semibold text-white">{me.name}</span>
-                    <span className="text-[10px] text-zinc-500">(Du)</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    {room.dealerPlayerId === me.id && (
-                      <span className="w-4 h-4 rounded-full bg-white text-black font-mono-code text-[10px] font-bold flex items-center justify-center">
-                        D
-                      </span>
-                    )}
-                    {room.smallBlindPlayerId === me.id && (
-                      <span className="rounded px-1 py-0.5 text-[9px] font-mono-code border border-white/20 text-zinc-300 leading-none">
-                        SB
-                      </span>
-                    )}
-                    {room.bigBlindPlayerId === me.id && (
-                      <span className="rounded px-1 py-0.5 text-[9px] font-mono-code border border-white/20 text-zinc-300 leading-none">
-                        BB
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex items-baseline justify-between gap-4">
-                  <div>
-                    <div className="text-[10px] uppercase tracking-wider text-zinc-500">
-                      Guthaben
+              {/* Clean Compact Seat Summary */}
+              <div className="flex items-center gap-4">
+                <div
+                  className={`rounded-xl border px-4 py-2.5 min-w-[184px] space-y-1 transition-colors ${
+                    room.handPhase === 'hand_over' && winnerSet.has(me.id)
+                      ? 'border-white/60 bg-white/[0.06]'
+                      : 'border-white/[0.07] bg-white/[0.015]'
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-xs font-medium text-zinc-400">{me.name}</span>
+                    <div className="flex items-center gap-1.5">
+                      {room.dealerPlayerId === me.id && (
+                        <span className="w-3.5 h-3.5 rounded-full bg-white text-black font-mono-code text-[9px] font-bold flex items-center justify-center">
+                          D
+                        </span>
+                      )}
+                      {room.smallBlindPlayerId === me.id && (
+                        <span className="text-[9px] font-mono-code text-zinc-500">
+                          SB
+                        </span>
+                      )}
+                      {room.bigBlindPlayerId === me.id && (
+                        <span className="text-[9px] font-mono-code text-zinc-500">
+                          BB
+                        </span>
+                      )}
                     </div>
-                    <div className="font-mono-code text-base font-bold text-white">
+                  </div>
+
+                  <div className="flex items-baseline justify-between gap-4">
+                    <span className="font-mono-code text-lg font-bold text-white">
                       {formatMoney(me.chips)}
-                    </div>
-                  </div>
-                  {me.streetBet > 0 && (
-                    <div className="text-right">
-                      <div className="text-[10px] uppercase tracking-wider text-zinc-500">
-                        Einsatz
-                      </div>
-                      <div className="font-mono-code text-sm font-semibold text-zinc-200">
-                        {formatMoney(me.streetBet)}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {me.eliminated ? (
-                  <div className="pt-1 border-t border-white/[0.06] flex items-center justify-between gap-2">
-                    <span className="text-[11px] text-zinc-500">
-                      Ausgeschieden (keine Chips mehr)
                     </span>
-                    {isHost && (
-                      <button
-                        type="button"
-                        onClick={onReturnToLobby}
-                        className="text-[11px] text-zinc-300 hover:text-white underline underline-offset-4 cursor-pointer"
-                      >
-                        Zurück zur Lobby
-                      </button>
+                    {me.streetBet > 0 && (
+                      <span className="font-mono-code text-xs text-zinc-400">
+                        +{formatMoney(me.streetBet)}
+                      </span>
                     )}
                   </div>
-                ) : me.folded ? (
-                  <div className="text-[11px] text-zinc-500 pt-1 border-t border-white/[0.06]">
-                    Gepasst (Fold)
-                  </div>
-                ) : room.myEvaluatedHand ? (
-                  <div className="text-[11px] text-zinc-300 pt-1 border-t border-white/[0.06] flex items-center justify-between gap-2">
-                    <span className="text-zinc-500">Hand:</span>
-                    <span className="font-medium text-white">
+
+                  {me.eliminated ? (
+                    <div className="pt-0.5 flex items-center justify-between gap-2">
+                      <span className="text-[11px] text-zinc-500">
+                        Ausgeschieden
+                      </span>
+                      {isHost && (
+                        <button
+                          type="button"
+                          onClick={onReturnToLobby}
+                          className="text-[11px] text-zinc-300 hover:text-white underline underline-offset-4 cursor-pointer"
+                        >
+                          Zurück zur Lobby
+                        </button>
+                      )}
+                    </div>
+                  ) : me.folded ? (
+                    <div className="text-[11px] text-zinc-500">
+                      Gepasst (Fold)
+                    </div>
+                  ) : room.myEvaluatedHand ? (
+                    <div className="text-[11px] text-zinc-400">
                       {room.myEvaluatedHand.labelDe}
-                    </span>
-                  </div>
-                ) : null}
+                    </div>
+                  ) : null}
+                </div>
+
+                {/* Inline right-side chip stack on mobile / compact viewports */}
+                <div className="lg:hidden">
+                  <ChipStackVisualizer
+                    chips={me.chips}
+                    startingStack={room.config.startingStack}
+                    isAllIn={me.allIn}
+                    compact
+                  />
+                </div>
               </div>
             </div>
           )}
 
           {/* Betting Controls */}
           {isMyTurn && (
-            <div className="rounded-2xl border border-white/15 bg-[#09090B] p-3.5 sm:p-4 space-y-3 animate-card-pop">
+            <div className="rounded-2xl border border-white/[0.09] bg-[#08080A] p-3.5 space-y-3 animate-card-pop">
               {room.canBetOrRaise && (
-                <div className="space-y-2.5 pb-2 border-b border-white/[0.08]">
+                <div className="space-y-2">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div className="flex flex-wrap gap-1.5">
                       {quickSizingButtons.map((preset) => (
@@ -750,10 +747,10 @@ export function GameTable({
                           key={preset.label}
                           type="button"
                           onClick={() => setBetAmount(preset.amount)}
-                          className={`rounded-lg px-2.5 py-1 text-xs font-medium transition-colors cursor-pointer ${
+                          className={`rounded-lg px-2.5 py-1 text-[11px] font-medium transition-colors cursor-pointer ${
                             clampedBet === preset.amount
                               ? 'bg-white text-black font-semibold'
-                              : 'border border-white/15 bg-black text-zinc-300 hover:text-white hover:border-white/35'
+                              : 'bg-white/[0.04] text-zinc-400 hover:text-white hover:bg-white/[0.09]'
                           }`}
                         >
                           {preset.label}
@@ -761,7 +758,7 @@ export function GameTable({
                       ))}
                     </div>
 
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-1">
                       <input
                         type="number"
                         min={room.minRaiseTo}
@@ -772,9 +769,9 @@ export function GameTable({
                           if (Number.isFinite(v)) setBetAmount(v);
                         }}
                         aria-label="Einsatzbetrag"
-                        className="w-24 rounded-lg border border-white/15 bg-black px-2.5 py-1 text-xs font-mono-code font-semibold text-white text-right focus:outline-none focus:border-white"
+                        className="w-20 rounded-lg border border-white/10 bg-black px-2 py-1 text-xs font-mono-code font-semibold text-white text-right focus:outline-none focus:border-white/50"
                       />
-                      <span className="font-mono-code text-xs text-zinc-400">$</span>
+                      <span className="font-mono-code text-xs text-zinc-500">$</span>
                     </div>
                   </div>
 
@@ -787,7 +784,8 @@ export function GameTable({
                       value={clampedBet}
                       onChange={(e) => setBetAmount(Number(e.target.value))}
                       aria-label="Einsatzschieberegler"
-                      className="w-full accent-white cursor-pointer"
+                      style={{ '--slider-pct': `${sliderPct}%` } as CSSProperties}
+                      className="poker-slider"
                     />
                   )}
                 </div>
@@ -798,9 +796,9 @@ export function GameTable({
                   type="button"
                   disabled={submitting}
                   onClick={() => void runAction('fold')}
-                  className="rounded-xl border border-white/15 bg-black py-3 px-4 text-xs sm:text-sm font-semibold text-zinc-300 hover:border-red-500/50 hover:text-red-400 disabled:opacity-40 transition-colors cursor-pointer"
+                  className="rounded-xl border border-white/10 bg-black/50 py-2.5 px-4 text-xs sm:text-sm font-medium text-zinc-400 hover:border-red-500/40 hover:text-red-400 disabled:opacity-40 transition-colors cursor-pointer"
                 >
-                  Fold (Passen)
+                  Fold
                 </button>
 
                 {room.canCheck ? (
@@ -808,7 +806,7 @@ export function GameTable({
                     type="button"
                     disabled={submitting}
                     onClick={() => void runAction('check')}
-                    className="rounded-xl bg-white text-black py-3 px-4 text-xs sm:text-sm font-semibold hover:bg-zinc-200 disabled:opacity-40 transition-colors cursor-pointer"
+                    className="rounded-xl bg-white text-black py-2.5 px-4 text-xs sm:text-sm font-semibold hover:bg-zinc-200 disabled:opacity-40 transition-colors cursor-pointer"
                   >
                     Check
                   </button>
@@ -817,7 +815,7 @@ export function GameTable({
                     type="button"
                     disabled={submitting || !room.canCall}
                     onClick={() => void runAction('call')}
-                    className="rounded-xl bg-white text-black py-3 px-4 text-xs sm:text-sm font-semibold hover:bg-zinc-200 disabled:opacity-40 transition-colors cursor-pointer"
+                    className="rounded-xl bg-white text-black py-2.5 px-4 text-xs sm:text-sm font-semibold hover:bg-zinc-200 disabled:opacity-40 transition-colors cursor-pointer"
                   >
                     {myCallIsAllIn
                       ? `All-In (${formatMoney(room.toCall)})`
@@ -839,7 +837,7 @@ export function GameTable({
                         clampedBet
                       )
                     }
-                    className="col-span-2 sm:col-span-1 rounded-xl border border-white/30 bg-white/[0.1] text-white py-3 px-4 text-xs sm:text-sm font-semibold hover:bg-white hover:text-black disabled:opacity-40 transition-colors cursor-pointer"
+                    className="col-span-2 sm:col-span-1 rounded-xl border border-white/20 bg-white/[0.08] text-white py-2.5 px-4 text-xs sm:text-sm font-semibold hover:bg-white hover:text-black disabled:opacity-40 transition-colors cursor-pointer"
                   >
                     {clampedBet >= room.maxRaiseTo
                       ? `All-In (${formatMoney(room.maxRaiseTo)})`
@@ -853,6 +851,20 @@ export function GameTable({
           )}
         </div>
       </footer>
+
+      {/* Right-side Poker Chip Stacks (desktop) */}
+      {me && (
+        <aside
+          aria-label="Chip-Stapel Visualisierung"
+          className="hidden lg:block lg:absolute lg:right-6 lg:bottom-7 z-10 pointer-events-auto"
+        >
+          <ChipStackVisualizer
+            chips={me.chips}
+            startingStack={room.config.startingStack}
+            isAllIn={me.allIn}
+          />
+        </aside>
+      )}
 
       {room.phase === 'match_over' && (
         <MatchOverModal
